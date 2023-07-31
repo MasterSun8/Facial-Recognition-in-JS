@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facial Recognition</title>
+    <script defer src="face-api.js"></script>
+    <script defer src="index.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <video id="vid" autoplay></video>
+    <div>
+        <label for="cam">Choose the camera:</label>
+        <select name="cam" id="cam">
+        </select>
+        <br>
+        User label: <input type="text" id="name">
+        <br>
+        <button onclick="addImage()">Add User</button>
+        <br>
+    </div>
+</body>
+
+</html>
