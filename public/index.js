@@ -202,7 +202,8 @@ async function recognize() {
         }
     })
 
-    FPS += Math.round(100000 / (Date.now() - lastFrame)) / 200
+    FPS += 1000 / (Date.now() - lastFrame)
+    FPS = Math.round(FPS * 50) / 100
     frames.innerHTML = `FPS: ${FPS}`
     lastFrame = Date.now()
 
