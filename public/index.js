@@ -1,5 +1,6 @@
 const user = document.getElementById('user')
-var limit = 125
+const realLimit = 2
+var limit = 0
 const loader = document.getElementById("load")
 const frames = document.getElementById("fps")
 let lastFrame
@@ -146,18 +147,8 @@ async function recognize() {
     let len = results.length
     if (len > 1) {
         spect++
-        if (spect > 2) {
-            document.body.style.backgroundColor = '#AAAAFF'
-            /*      if (len == 2) {
-                    alert(`You have a spectator ${results[1]['_label']}`)
-                  } else {
-                    spectlist.length = 0
-                    for (; len > 1; len--) {
-                      spectlist.push(results[len]['_label'])
-                    }
-                    alert(`You have spectators ${spectlist}`)
-                  }
-                  */
+        if (spect > 3) {
+            document.body.style.backgroundColor = '#5555FF'
         }
     } else {
         spect = 0
@@ -165,7 +156,7 @@ async function recognize() {
 
     if (!results[0]) {
         counter++
-        if (counter > limit) {
+        if (counter > limit * 3) {
             document.body.style.backgroundColor = '#AAAAAA'
         }
     }
@@ -204,6 +195,7 @@ async function recognize() {
 
     FPS += 1000 / (Date.now() - lastFrame)
     FPS = Math.round(FPS * 50) / 100
+    limit = realLimit * FPS
     frames.innerHTML = `FPS: ${FPS}`
     lastFrame = Date.now()
 
