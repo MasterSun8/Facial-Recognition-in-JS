@@ -11,6 +11,7 @@
 </head>
 
 <body>
+    <img id="load" src="https://i.stack.imgur.com/SBv4T.gif" alt="this slowpoke moves" width="250" />
     <video id="vid" autoplay></video>
     <div>
         <label for="cam">Choose the camera:</label>
@@ -20,6 +21,12 @@
         User label: <input type="text" id="name">
         <br>
         <button onclick="addImage()">Add User</button>
+        <button onclick="delLocalStorage()">Delete Localstorage</button>
+        <br>
+        <div id="fps">
+        </div>
+        <div id="user">
+        </div>
         <br>
     </div>
 </body>

@@ -1,3 +1,15 @@
+const user = document.getElementById('user')
+var limit = 125
+const loader = document.getElementById("load")
+const frames = document.getElementById("fps")
+let lastFrame
+let FPS
+let tempUs = ''
+let same = 0
+let us = ''
+let spect = 0
+let counter = 0
+let spectlist = new Array()
 const vid = document.getElementById('vid')
 const select = document.getElementById("cam");
 const username = document.getElementById("name");
@@ -6,9 +18,17 @@ let faceMatcher, canvas, displaySize
 
 let constraints = {
     video: {
-        facingMode: "environment"
+        facingMode: "user"
     }
 }
+
+function onChange() {
+    console.log(select.value)
+    constraints.video.deviceId = select.value
+    startWebcam()
+}
+
+select.onchange = onChange;
 
 if (!navigator.mediaDevices?.enumerateDevices) {
     console.log("enumerateDevices() not supported.");
@@ -18,27 +38,37 @@ if (!navigator.mediaDevices?.enumerateDevices) {
         .then((devices) => {
             devices.forEach((device) => {
                 if (device.kind == "videoinput") {
-                    let option = document.createElement("option")
-                    option.text = device.label
-                    option.value = device.deviceId
-                    select.appendChild(option)
+                    let option = document.createElement("option");
+                    option.text = device.label;
+                    option.value = device.deviceId;
+                    select.appendChild(option);
                 }
             });
         })
         .catch((err) => {
+            document.body.innerHTML += error.name + ': ' + error.message
             console.error(`${err.name}: ${err.message}`);
-        })
+        });
 }
 
 function startWebcam() {
-    navigator.mediaDevices
-        .getUserMedia(constraints)
-        .then(stream => {
-            vid.srcObject = stream
-        })
-        .catch(error => {
-            console.error(error.name + ': ' + error.message)
-        })
+    vid.srcObject?.getTracks().forEach(track => track.stop());
+    let devices = navigator.mediaDevices;
+    if (devices && 'getUserMedia' in devices) {
+        navigator.mediaDevices
+            .getUserMedia(constraints)
+            .then(stream => {
+                vid.autoplay = true;
+                vid.srcObject = stream
+                if (loader) {
+                    loader.remove()
+                }
+            })
+            .catch(error => {
+                user.innerHTML = error.name + ': ' + error.message
+                console.error(error.name + ': ' + error.message)
+            })
+    }
 }
 
 Promise.all([
@@ -86,36 +116,6 @@ async function getLabeledFaceDescriptions() {
             }
         })
     )
-    /*
-        let users = await fetch('users.txt')
-        users = await users.text()
-        users = users.split('\r\n')
-        return Promise.all(
-            users.map(async label => {
-                const descriptions = new Array()
-                for (let i = 0; i < 5; i++) {
-                    const img = await faceapi.fetchImage(`./users/${label}/${i}.jpg`)
-                    const detections = await faceapi
-                        .detectSingleFace(img)
-                        .withFaceLandmarks()
-                        .withFaceDescriptor()
-                    try {
-                        descriptions.push(detections.descriptor);
-                        console.log(`all good on ${label}${i}`)
-                    } catch {
-                        console.error(`fuck up on ${label}${i}`)
-                    }
-                }
-                try {
-                    let t = new faceapi.LabeledFaceDescriptors(label, descriptions)
-                    console.log(`all good on ${label}`)
-                    return t
-                } catch {
-                    console.error(`fuck up on ${label}`)
-                }
-            })
-        )
-    /**/
 }
 
 vid.addEventListener("play", async () => {
@@ -128,6 +128,7 @@ vid.addEventListener("play", async () => {
     displaySize = { width: vid.clientWidth, height: vid.clientHeight };
     faceapi.matchDimensions(canvas, displaySize)
 
+    lastFrame = Date.now()
     recognize()
 });
 
@@ -142,13 +143,70 @@ async function recognize() {
 
     canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height)
 
+    let len = results.length
+    if (len > 1) {
+        spect++
+        if (spect > 2) {
+            document.body.style.backgroundColor = '#AAAAFF'
+            /*      if (len == 2) {
+                    alert(`You have a spectator ${results[1]['_label']}`)
+                  } else {
+                    spectlist.length = 0
+                    for (; len > 1; len--) {
+                      spectlist.push(results[len]['_label'])
+                    }
+                    alert(`You have spectators ${spectlist}`)
+                  }
+                  */
+        }
+    } else {
+        spect = 0
+    }
+
+    if (!results[0]) {
+        counter++
+        if (counter > limit) {
+            document.body.style.backgroundColor = '#AAAAAA'
+        }
+    }
+
     results.forEach((result, i) => {
         const box = resizedDetections[i].detection.box
         const drawBox = new faceapi.draw.DrawBox(box, {
             label: result,
         })
         drawBox.draw(canvas)
+        if (us == '') {
+            if (tempUs != result['_label']) {
+                tempUs = result['_label']
+            } else {
+                same++
+            }
+            if (same > 10) {
+                us = result['_label']
+                user.innerHTML = us
+            }
+        }
+        if (us != result['_label'] && us != '') {
+            if (counter > limit) {
+                document.body.style.backgroundColor = '#FF0000'
+                console.log(`You are not ${us} you are ${result['_label']}`)
+            } else {
+                counter++
+            }
+        } else {
+            counter = 0
+            if (spect == 0) {
+                document.body.style.backgroundColor = '#00FF00'
+            }
+        }
     })
+
+    FPS = Math.round(100000 / (Date.now() - lastFrame)) / 100
+    console.log(FPS)
+    frames.innerHTML = `FPS: ${FPS}`
+    lastFrame = Date.now()
+
     setTimeout(recognize, 1)
 }
 
@@ -165,4 +223,8 @@ function addImage() {
     imgData = capture(vid)
     localStorage.setItem(username.value, imgData)
     location.reload()
+}
+
+function delLocalStorage() {
+    localStorage.clear()
 }
