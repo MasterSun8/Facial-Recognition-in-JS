@@ -3,7 +3,7 @@ var limit = 125
 const loader = document.getElementById("load")
 const frames = document.getElementById("fps")
 let lastFrame
-let FPS
+let FPS = 0
 let tempUs = ''
 let same = 0
 let us = ''
@@ -202,8 +202,7 @@ async function recognize() {
         }
     })
 
-    FPS = Math.round(100000 / (Date.now() - lastFrame)) / 100
-    console.log(FPS)
+    FPS += Math.round(100000 / (Date.now() - lastFrame)) / 200
     frames.innerHTML = `FPS: ${FPS}`
     lastFrame = Date.now()
 
