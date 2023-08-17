@@ -188,11 +188,7 @@ async function recognize() {
         } else {
             counter = 0
             if (spect == 0) {
-                try{
-                    if(document.body.style?.backgroundColor){
-                        document.body.style.removeProperty(backgroundColor)
-                    }
-                }catch{}
+                document.body.style.backgroundColor = ''
             }
         }
     })
