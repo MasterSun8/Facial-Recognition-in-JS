@@ -124,7 +124,7 @@ vid.addEventListener("play", async () => {
     faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors);
 
     canvas = faceapi.createCanvasFromMedia(vid)
-    document.body.append(canvas)
+    document.getElementById('canv').append(canvas)
 
     displaySize = { width: vid.clientWidth, height: vid.clientHeight };
     faceapi.matchDimensions(canvas, displaySize)
