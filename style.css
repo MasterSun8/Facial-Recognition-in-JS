@@ -3,7 +3,7 @@ body{
     align-content: unset;
     min-height: 0px;
     display: flex;
-    flex-direction: row;
+    flex-direction: column-reverse;
 }
 
 video{
