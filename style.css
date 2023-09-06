@@ -12,7 +12,11 @@ video{
     max-width: 90vw;
 }
 
-canvas{
+video, canvas{
     position: absolute;
     background-color: unset;
+}
+
+.canv{
+    position: relative;
 }
